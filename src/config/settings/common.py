@@ -112,6 +112,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "accounts.jwt.token_auth.CustomJwtTokenAuthentication",
+    ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
