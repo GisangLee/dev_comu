@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.crypto import get_random_string
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.models import AbstractBaseUser
 
 
 class BaseManager(models.Manager):
@@ -64,7 +65,9 @@ class UserManager(BaseManager):
 
 
 class User(models.Model):
-    objecs = UserManager()
+    objects = UserManager()
+
+    _password = None
 
     GENDER_MALE = "Male"
     GENDER_FEMALE = "Female"
@@ -76,10 +79,11 @@ class User(models.Model):
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
     login_try = models.PositiveIntegerField(default=0)
     email = models.EmailField(max_length=100)
-    pwd_chg_date = models.DateField(blank=True)
+    pwd_chg_date = models.DateField(blank=True, null=True)
     gender = models.CharField(choices=GENDER_CHOICES, blank=True, max_length=10)
     is_wrong_pwd = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
