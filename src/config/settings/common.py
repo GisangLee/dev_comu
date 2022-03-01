@@ -88,7 +88,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(PR_DIR, "static")
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(PR_DIR, "media")
@@ -102,8 +102,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 AUTHENTICATION_BACKENDS = (
-    "auth.backends.EmailUsernameLoginBackend",
-    #'django.contrib.auth.backends.ModelBackend',
+    "accounts.login_auth.EmailUsernameLoginBackend",
+    # "django.contrib.auth.backends.ModelBackend",
 )
 
 REST_FRAMEWORK = {

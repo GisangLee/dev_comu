@@ -13,6 +13,33 @@ class UserView(APIView):
         return Response({"message": "OK"}, status=status.HTTP_200_OK)
 
 
+class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, format=None):
+
+        res = None
+        res_status = None
+
+        serializer = user_serializers.LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            if serializer.validated_data["status"] == 400:
+                res_status = status.HTTP_400_BAD_REQUEST
+            else:
+                res_status = status.HTTP_200_OK
+
+            res = serializer._validated_data
+        else:
+            res = {
+                "message": "로그인 실패",
+                "token": None,
+                "user": None,
+            }
+            res_status = status.HTTP_400_BAD_REQUEST
+
+        return Response(res, status=res_status)
+
+
 class SignupView(APIView):
     permission_classes = [permissions.AllowAny]
 

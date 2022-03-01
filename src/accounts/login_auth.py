@@ -4,7 +4,7 @@ from accounts import models as user_models
 from django.contrib.auth.backends import ModelBackend
 
 
-class EmailUsernameLoginBackend():
+class EmailUsernameLoginBackend:
     def authenticate(self, request, username=None, password=None):
         if "@" in username:
             kwargs = {"email": username}
