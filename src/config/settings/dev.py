@@ -3,6 +3,15 @@ from .common import *
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
+INSTALLED_APPS += [
+    "debug_toolbar",
+]
+
+MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+] + MIDDLEWARE
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -20,3 +29,8 @@ DATABASES = {
         "PORT": os.environ.get("DB_PORT"),
     }
 }
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
