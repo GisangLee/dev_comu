@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.crypto import get_random_string
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import AbstractBaseUser
 
 
 class BaseManager(models.Manager):
@@ -160,3 +159,15 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class UseProfile(models.Model):
+    user = models.ForeignKey("User", related_name="profile", on_delete=models.CASCADE)
+    file = models.ImageField(upload_to="profile/%Y/%m/%d", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user
+
+    class Meta:
+        db_table = "user_profile"

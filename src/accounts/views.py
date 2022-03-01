@@ -20,8 +20,12 @@ class SignupView(APIView):
         res = None
         res_status = None
 
+        profile_photo = request.FILES.getlist("profile")[0]
+
         try:
-            user = user_models.User.objects.get(email=request.data["email"])
+            user = user_models.User.objects.prefetch_related("profile").get(
+                email=request.data["email"]
+            )
             if user:
                 res = {"message": "이미 등록된 이메일입니다."}
                 return Response(res, status=status.HTTP_400_BAD_REQUEST)
@@ -33,7 +37,9 @@ class SignupView(APIView):
                 return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                user = user_models.User.objects.get(username=request.data["username"])
+                user = user_models.User.objects.prefetch_related("profile").get(
+                    username=request.data["username"]
+                )
                 if user:
                     res = {"message": "이미 등록된 이름입니다."}
                     return Response(res, status=status.HTTP_400_BAD_REQUEST)
@@ -41,7 +47,14 @@ class SignupView(APIView):
                 serializer = user_serializers.SignupSerializer(data=request.data)
 
                 if serializer.is_valid():
-                    serializer.save()
+                    if profile_photo:
+                        user = serializer.save()
+                        profile = user_models.UseProfile.objects.create(
+                            user=user, file=profile_photo
+                        )
+                        profile.save()
+                    else:
+                        user = serializer.save()
                     res = {"message": "회원가입 완료"}
                     res_status = status.HTTP_200_OK
                 else:
