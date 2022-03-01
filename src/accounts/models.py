@@ -79,6 +79,8 @@ class User(models.Model):
     login_try = models.PositiveIntegerField(default=0)
     email = models.EmailField(max_length=100)
     pwd_chg_date = models.DateField(blank=True, null=True)
+    need_chg_pwd = models.BooleanField(default=False)
+    is_dormant_account = models.BooleanField(default=False)
     gender = models.CharField(choices=GENDER_CHOICES, blank=True, max_length=10)
     is_wrong_pwd = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -171,3 +173,11 @@ class UseProfile(models.Model):
 
     class Meta:
         db_table = "user_profile"
+
+
+class DormantUser(models.Model):
+    user = models.ForeignKey("User", related_name="dormant", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "user_dormant"
