@@ -3,7 +3,7 @@ FROM python:3.9
 ENV PYTHONUNBUFFERED 1
 RUN apt-get -y update && apt-get clean
 
-WORKDIR /dev_comu
+WORKDIR /usr/src/dev_comu
 
 COPY . .
 

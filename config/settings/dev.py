@@ -4,7 +4,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("MYSQL_ENGINE"),

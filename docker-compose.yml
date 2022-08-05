@@ -1,7 +1,7 @@
-version: "3"
+version: "3.7"
 
 services:
-  backend:
+  django:
     build:
       context: ./
       dockerfile: Dockerfile
@@ -11,18 +11,16 @@ services:
     restart: always
 
     ports:
-      - "8000:8000"
+      - 8000:8000
 
     env_file:
       - .env
 
     depends_on:
       - db
-    
-    volumes:
-      - ./:/dev_comu/
 
-    working_dir: /dev_comu/
+    volumes:
+      - .:/usr/src/dev_comu
 
     networks:
       - dev_comu_net
@@ -46,10 +44,13 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
     volumes:
-      - ./mysql/data:/var/lib/mysql/data
+      - db_volume:/var/lib/mysql
 
     networks:
       - dev_comu_net
 
 networks:
  dev_comu_net:
+
+volumes: # 볼륨을 따로 생성
+  db_volume:
