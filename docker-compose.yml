@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: .   ## Dockerfile이 있는 경로 (절대경로 또는 상대경로)
+      dockerfile: Dockerfile  ## 파일명이 Dockerfile이 아닐 경우 파일명 기입
+
+    container_name: dev_comu_backend
+
+    restart: always
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+
+    depends_on:
+      - db
+    
+    volumes:
+      - .:/dev_comu
+
+    networks:
+      - dev_comu_net
+
+  db:
+    image: mysql
+    restart: always
+    container_name: dev_comu_db
+    ports:
+      - "3306:3306"
+    
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_NAME=${MYSQL_NAME}
+      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - ./mysql/data:/var/lib/mysql/data
+
+    networks:
+      - dev_comu_net
+
+networks:
+ dev_comu_net:
