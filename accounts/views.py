@@ -9,18 +9,6 @@ from accounts import utils
 
 class SignupView(APIView):
 
-    def get(self, request):
-
-        res = {
-            "action": "회원가입",
-            "method": "POST",
-            "req_url": "/accounts/signup",
-            "message": "회원가입"
-        }
-
-        return Response(res, status = status.HTTP_200_OK)
-
-
     @swagger_auto_schema(request_body=swagger_ser.SignupSerializer, manual_parameters=swagger_utils.login_no_require, tags=["회원가입"])
     def post(self, request):
 
