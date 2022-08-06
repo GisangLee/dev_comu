@@ -47,7 +47,7 @@ class User(AbstractBaseUser):
 
     username = models.CharField(max_length=20, unique=True)
     email = models.EmailField(max_length=254, unique=True)
-    gender = models.CharField(choices=GENDER_CHOICES, blank=True, max_length=10)
+    gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True, null=True)
     login_method = models.CharField(choices=LOGIN_CHOICES, max_length=6, default=LOGIN_EMAIL)
     is_admin = models.BooleanField(default=False)
     birthdate = models.DateField(blank=True, null=True)
