@@ -22,11 +22,13 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',    
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework"
+]
 
-PROJ_APPS = []
-
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJ_APPS
+PROJ_APPS = [
+    "accounts",
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -100,3 +102,21 @@ MEDIA_ROOT = os.path.join(PROJ_DIR, "media")
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        #'rest_framework.permissions.IsAuthenticated'
+        "accounts.perms.perms.AllowAny"
+    ]
+}
+
+AUTH_USE_MODEL = "accounts.User"
+
+# Authentication Customizing
+AUTHENTICATION_BACKENDS = (
+    'accounts.auth.login_email_auth.EmailUsernameLoginBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)

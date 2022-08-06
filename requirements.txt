@@ -2,3 +2,7 @@ Django
 psycopg2
 mysqlclient
 django-dotenv
+djangorestframework
+django-debug-toolbar
+Pillow
+pyjwt

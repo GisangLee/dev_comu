@@ -4,6 +4,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+THIRD_PARTY_APPS += [
+    "debug_toolbar"
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJ_APPS
+
+MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("MYSQL_ENGINE"),
@@ -12,13 +20,17 @@ DATABASES = {
         "PASSWORD":os.environ.get("MYSQL_PASSWORD"),
         "HOST":os.environ.get("MYSQL_HOST"),
         "PORT":os.environ.get("MYSQL_PORT"),
-        "OPTIONS": {
-            "charset": "utfmb4",
-            "use_unicode": True 
-        }
+        #"OPTIONS": {
+            #"charset": 'utfmb4',
+            #"use_unicode": True 
+        #}
     }
 }
 
 STATICFILES_DIRS = [
     os.path.join(PROJ_DIR, "static")
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]

@@ -12,11 +12,14 @@ DATABASES = {
         "PASSWORD":os.environ.get("MYSQL_PASSWORD"),
         "HOST":os.environ.get("MYSQL_HOST"),
         "PORT":os.environ.get("MYSQL_PORT"),
-        "OPTIONS": {
-            "charset": "utfmb4",
-            "use_unicode": True 
-        }
+        #"OPTIONS": {
+            #"charset": "utfmb4",
+            #"use_unicode": True 
+        #}
     }
 }
+
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJ_APPS
 
 STATIC_ROOT = os.path.join(PROJ_DIR, "static")
