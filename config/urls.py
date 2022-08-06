@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from accounts.perms.perms import AllowAny
+from accounts import perms
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
@@ -16,7 +16,7 @@ schema_view = get_schema_view(
         #license=openapi.License(name="mit"),     # 부가정보
     ),
     public=True,
-    permission_classes=[AllowAny],
+    permission_classes=[perms.AllowAny],
 )
 
 

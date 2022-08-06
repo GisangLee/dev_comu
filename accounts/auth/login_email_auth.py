@@ -1,8 +1,13 @@
-from django.conf import settings
+import os, jwt, time, datetime
 from django.contrib.auth import get_user_model
+from rest_framework import exceptions
+from django.apps import apps as django_apps
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.backends import ModelBackend
 from accounts import models as user_models
 
+# 이메일 + 유저 ID 둘다 로그인 되도록 하는 커스텀 인증 시스템 구축
 # 이메일 + 유저 ID 둘다 로그인 되도록 하는 커스텀 인증 시스템 구축
 class EmailUsernameLoginBackend(ModelBackend):
 
@@ -18,21 +23,34 @@ class EmailUsernameLoginBackend(ModelBackend):
         try:
             user = get_user_model().objects.get(**kwargs)
 
+            print(f"===========================user : {user}======================================")
+
             if user.check_password(password):
-                user.is_wrong_pwd = False
-                user.login_try = 0
-                user.save()
+                #user.wrong_pwd = False
+                #user.save()
                 return user
-                
+
             else:
-                # 비밀번호 오류 시 로그인 시도 횟수 증가
-                user.login_try = user.login_try + 1
-                user.is_wrong_pwd = True
-                user.save()
-                return user
+                # 비밀번호 오류
+                #user.wrong_pwd = True
+                #user.save()
+                return None
 
         except user_models.User.DoesNotExist:
             return None
+
+    def get_user_model():
+        """
+        Return the User model that is active in this project.
+        """
+        try:
+            return django_apps.get_model(settings.AUTH_USER_MODEL, require_ready=False)
+        except ValueError:
+            raise ImproperlyConfigured("AUTH_USER_MODEL must be of the form 'app_label.model_name'")
+        except LookupError:
+            raise ImproperlyConfigured(
+                "AUTH_USER_MODEL refers to model '%s' that has not been installed" % settings.AUTH_USER_MODEL
+            )
 
     def get_user(self, username):
         try:

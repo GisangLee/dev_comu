@@ -1,6 +1,46 @@
-from rest_framework.serializers import ModelSerializer, CharField
+from rest_framework.serializers import ModelSerializer, CharField, Serializer
 from django.db.models import Q
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import update_last_login
 from accounts import models as account_models
+from accounts.jwt import generate
+
+class LoginSerializer(Serializer):
+    username = CharField(max_length=320)
+    password = CharField(max_length=128, write_only=True)
+    
+    def validate(self, data):
+        username = data.get("username")
+        password = data.get("password")
+        print(f"username: {username}")
+        print(f"password: {password}")
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            response = {
+                "message": "등록된 이름(ID)가 없습니다",
+                "token": None,
+                "status": 400,
+            }
+            return response
+
+        payload = {
+            "user_id": user.id,
+        }
+
+        access_jwt = generate.generate_jwt_token(payload, "access")
+        update_last_login(None, user)
+
+        response = {
+            "message": "OK",
+            "token": access_jwt,
+            "status": 200,
+            "username": user.username,
+            "email": user.email,
+        }
+        return response
+
+
 
 class SignupSerializer(ModelSerializer):
     password = CharField(write_only=True)

@@ -110,8 +110,13 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAuthenticated'
-        "accounts.perms.perms.AllowAny"
-    ]
+        #"accounts.perms.perms.AllowAny"
+        "accounts.perms.LoggedInRequired"
+    ],
+
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'accounts.jwt.auth.JwtTokenAuthentication',
+    ],
 }
 
 AUTH_USE_MODEL = "accounts.User"
@@ -119,5 +124,5 @@ AUTH_USE_MODEL = "accounts.User"
 # Authentication Customizing
 AUTHENTICATION_BACKENDS = (
     'accounts.auth.login_email_auth.EmailUsernameLoginBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    #'django.contrib.auth.backends.ModelBackend',
 )

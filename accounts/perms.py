@@ -8,6 +8,7 @@ class LoggedInRequired(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and not request.user.is_deleted)
 
+
 class AllowAny(BasePermission):
 
     def has_permission(self, request, view):
