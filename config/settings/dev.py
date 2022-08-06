@@ -12,6 +12,10 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJ_APPS
 
 MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
+print(f"THIRD_PARTY_APPS : {THIRD_PARTY_APPS}")
+print(f"MIDDLEWARE : {MIDDLEWARE}")
+print(f"INSTALLED_APPS : {INSTALLED_APPS}")
+
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("MYSQL_ENGINE"),
@@ -28,9 +32,11 @@ DATABASES = {
 }
 
 STATICFILES_DIRS = [
-    os.path.join(PROJ_DIR, "static")
+     os.path.join(PROJ_DIR, "static")
 ]
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+#STATIC_ROOT = os.path.join(PROJ_DIR, "static")
+
+import socket  # only if you haven't already imported this
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
