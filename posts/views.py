@@ -34,6 +34,7 @@ class Category(APIView):
 # 게시글 삭제
 # 게시글 수정
 class PostSpecific(APIView):
+    #permission_classes = [perms.AllowAny]
 
     # 게시글 상세
     @swagger_auto_schema(manual_parameters=swagger_utils.login_required, tags=["게시글 상세"])
@@ -45,7 +46,7 @@ class PostSpecific(APIView):
         print(f"post pk : {post_pk}")
 
         try:
-            post = post_models.Post.objects.select_related("author", "category").prefetch_related("tags", "liked_users", "viewed_users", "scrapped_users").get(pk=post_pk, is_deleted=False)
+            post = post_models.Post.objects.select_related("author", "category").prefetch_related("author__profile_images", "comments", "comments__child_comments", "comments__liked_users", "comments__disliked_users", "comments__child_comments__liked_users", "comments__child_comments__liked_users", "tags", "liked_users", "viewed_users", "scrapped_users").get(pk=post_pk, is_deleted=False)
 
             if post:
                 

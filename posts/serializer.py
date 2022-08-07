@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from comments.serializer import CommentSerializer
 from posts import models as post_models
 
 class CategorySerializer(ModelSerializer):
@@ -16,7 +17,8 @@ class TagSerializer(ModelSerializer):
 class PostSerializer(ModelSerializer):
     category = CategorySerializer()
     tags = TagSerializer(many=True)
+    comments = CommentSerializer(many=True)
 
     class Meta:
         model = post_models.Post
-        fields = ("pk", "category", "tags", "author", "created_at", "updated_at", "liked_users", "viewed_users", "scrapped_users",)
+        fields = ("pk", "category", "tags", "author", "created_at", "updated_at", "liked_users", "viewed_users", "scrapped_users", "comments",)

@@ -1,9 +1,31 @@
-from rest_framework.serializers import ModelSerializer, CharField, Serializer
+from rest_framework.serializers import ModelSerializer, CharField, Serializer, SerializerMethodField
 from django.db.models import Q
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from accounts import models as account_models
 from accounts.jwt import generate
+
+
+class ProfileImageSerializer(ModelSerializer):
+
+    class Meta:
+        model = account_models.UserProfile
+        fields = ("pk", "avatar",)
+
+
+class UserSerializer(ModelSerializer):
+    profile_image = SerializerMethodField()
+
+    def get_profile_image(self, obj):
+
+        image = obj.profile_images.all().last()
+
+        return ProfileImageSerializer(image).data
+
+    class Meta:
+        model = account_models.User
+        fields = ("pk", "username", "email", "profile_images",)
+
 
 class LoginSerializer(Serializer):
     username = CharField(max_length=320)

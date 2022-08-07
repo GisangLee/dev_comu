@@ -1,8 +1,11 @@
 from django.db import models
 from accounts import models as user_models
+from posts import models as post_models
 
 class Comment(models.Model):
     author = models.ForeignKey(user_models.User, on_delete=models.CASCADE, related_name="comments")
+    post = models.ForeignKey(post_models.Post, on_delete=models.CASCADE, related_name="comments")
+
     desc = models.TextField(blank=True, null=True)
 
     liked_users = models.ManyToManyField(user_models.User, related_name="comment_liked_users", through="CommentLikedUsers", blank=True, null=True)
@@ -17,6 +20,8 @@ class Comment(models.Model):
 
 class ChildComment(models.Model):
     author = models.ForeignKey(user_models.User, on_delete=models.CASCADE, related_name="child_comments")
+    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="child_comments")
+
     desc = models.TextField(blank=True, null=True)
 
     liked_users = models.ManyToManyField(user_models.User, related_name="child_comment_liked_users", through="ChildCommentLikedUsers", blank=True, null=True)
