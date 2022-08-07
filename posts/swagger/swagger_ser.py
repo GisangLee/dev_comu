@@ -9,8 +9,10 @@ class CreatePostSerializer(Serializer):
     title = CharField()
     desc = CharField()
     tags_id = ListField()
+    tag_names = ListField()
 
 
 class ModifyPostSerializer(Serializer):
     title = CharField()
     desc = CharField()
+    tag_names = ListField()

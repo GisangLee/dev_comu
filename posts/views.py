@@ -28,6 +28,7 @@ class Category(APIView):
         res = utils.api_response(action="카테고리 생성", method="GET", url="/posts/category", error="", message="카테고리가 생성되었습니다.", status="success")
 
         return Response(res, status = status.HTTP_201_CREATED)
+
         
 # 게시글 상세
 # 게시글 삭제
@@ -66,7 +67,7 @@ class PostSpecific(APIView):
         logged_in_user = request.user
 
         try:
-            post = post_models.Post.objects.select_related('author').get(pk = post_pk, is_deleted = False)
+            post = post_models.Post.objects.select_related('author').prefetch_related("tags").get(pk = post_pk, is_deleted = False)
 
             if post:
                 author = post.author
@@ -79,12 +80,23 @@ class PostSpecific(APIView):
 
                     return Response(res, status = status.HTTP_401_UNAUTHORIZED)
 
-                
                 title = request.data.get("title", post.title)
                 desc = request.data.get("desc", post.desc)
 
+                tag_names = request.data.get("tag_names", None)
+
+                post.tags.all().delete()
+
+                new_tags_list = []
+
+                for tag_name in tag_names:
+
+                    new_tag = post_models.Tag.objects.create(name = tag_name)
+                    new_tags_list.append(new_tag)
+
                 post.title = title
                 post.desc = desc
+                post.tags.add(*new_tags_list)
 
                 post.save()
 
@@ -144,6 +156,7 @@ class Post(APIView):
         title = request.data.get("title", None)
         desc = request.data.get("desc", None)
         tags_id = request.data.get("tags_id", None)
+        tag_names = request.data.get("tag_names", None)
 
         if category_id is None or title is None or desc is None:
             res = utils.api_response(action="게시글 작성", method="POST", url="/posts/post", error="카테고리, 제목 혹은 내용을 채워주세요.", message="", status="fail")
@@ -155,14 +168,23 @@ class Post(APIView):
 
             if category:
 
-                tags = list(post_models.Tag.objects.filter(pk__in = tags_id))
-
                 new_post = post_models.Post.objects.create(author = logged_in_user, category = category)
 
+                tags = list(post_models.Tag.objects.filter(pk__in = tags_id).values_list("name", flat=True))
+
+                not_exist_tags = list(set(tag_names)-set(tags))
+
+                not_exist_tags_list = []
+
+                for tag in not_exist_tags:
+                    new_tag = post_models.Tag.objects.create(name = tag)
+                    not_exist_tags_list.append(new_tag)
+
+            
                 new_post.title = title
                 new_post.desc = desc
 
-                new_post.tags.add(*tags)
+                new_post.tags.add(*not_exist_tags_list)
                 new_post.save()
 
                 res = utils.api_response(action="게시글 작성", method="POST", url="/posts/post", error="", message="게시글이 작성되었습니다.", status="success")
