@@ -66,7 +66,7 @@ class PostSpecific(APIView):
         logged_in_user = request.user
 
         try:
-            post = post_models.Post.objects.select_related('author').get(pk = post_pk)
+            post = post_models.Post.objects.select_related('author').get(pk = post_pk, is_deleted = False)
 
             if post:
                 author = post.author
@@ -94,6 +94,38 @@ class PostSpecific(APIView):
 
         except post_models.Post.DoesNotExist:
             res = utils.api_response(action="게시글 수정", method="PATCH", url="/posts/post", error="존재하지 않는 게시글입니다.", message="", status="fail")
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
+
+    # 게시글 삭제
+    @swagger_auto_schema(manual_parameters=swagger_utils.login_required, tags=["게시글 삭제"])
+    def delete(self, request, post_pk):
+
+        logged_in_user = request.user
+
+        try:
+            post = post_models.Post.objects.select_related('author').get(pk = post_pk, is_deleted = False)
+
+            if post:
+                author = post.author
+
+                print(f"logged_in_user: {logged_in_user}")
+                print(f"post pk : {post_pk}")
+
+                if logged_in_user != author:
+                    res = utils.api_response(action="게시글 삭제", method="DELETE", url="/posts/post", error="권한이 없습니다.", message="", status="fail")
+
+                    return Response(res, status = status.HTTP_401_UNAUTHORIZED)
+
+            post.is_deleted = True
+            post.save()
+
+            res = utils.api_response(action="게시글 삭제", method="DELETE", url="/posts/post", error="", message="삭제되었습니다.", status="success")
+
+            return Response(res, status = status.HTTP_200_OK)
+
+        except post_models.Post.DoesNotExist:
+            res = utils.api_response(action="게시글 삭제", method="DELETE", url="/posts/post", error="존재하지 않는 게시글입니다.", message="", status="fail")
 
             return Response(res, status = status.HTTP_400_BAD_REQUEST)
 
