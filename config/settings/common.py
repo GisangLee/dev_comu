@@ -30,6 +30,7 @@ THIRD_PARTY_APPS = [
 PROJ_APPS = [
     "accounts",
     "posts",
+    "comments",
 ]
 
 MIDDLEWARE = [
