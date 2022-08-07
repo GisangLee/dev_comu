@@ -25,19 +25,7 @@ class EmailUsernameLoginBackend(ModelBackend):
             user = user_models.User.objects.get(**kwargs)
 
             if user:
-
-                print(f"===========================user : {user}======================================")
-
-                if user.check_password(password):
-                    #user.wrong_pwd = False
-                    #user.save()
-                    return user
-
-                else:
-                    # 비밀번호 오류
-                    #user.wrong_pwd = True
-                    #user.save()
-                    return None
+                return user
 
         except user_models.User.DoesNotExist:
             return None

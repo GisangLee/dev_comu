@@ -24,6 +24,15 @@ class LoginSerializer(Serializer):
             }
             return response
 
+        if not user.check_password(password):
+        
+            response = {
+                "message": "비밀번호가 일치하지 않습니다.",
+                "token": None,
+                "status": 400,
+            }
+            return response
+
         payload = {
             "user_id": user.id,
         }
