@@ -50,7 +50,8 @@ class User(AbstractBaseUser):
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True, null=True)
     login_method = models.CharField(choices=LOGIN_CHOICES, max_length=6, default=LOGIN_EMAIL)
     is_admin = models.BooleanField(default=False)
-    birthdate = models.DateField(blank=True, null=True)
+    #birthdate = models.DateField(blank=True, null=True)
+    birthdate = models.CharField(blank=True, null=True, max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -80,6 +81,7 @@ class User(AbstractBaseUser):
 
 class UserProfile(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="profile_images")
+    avatar = models.ImageField(blank=True, null=True, upload_to="profile/%Y/%m/%d")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

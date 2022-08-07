@@ -1,5 +1,7 @@
-from curses import reset_prog_mode
-from django.shortcuts import render
+import os, requests, datetime
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import update_last_login
+from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,7 +9,9 @@ from drf_yasg.utils import swagger_auto_schema
 from accounts import utils
 from accounts import perms
 from accounts.swagger import swagger_utils, swagger_ser
+from accounts.jwt import generate
 from accounts import serializers as account_serializers
+from accounts import models as user_models
 
 # 회원가입
 class SignupView(APIView):
@@ -75,3 +79,114 @@ class LoginView(APIView):
                 res = utils.api_response(action="로그인", method="POST", error="", message=serializer.validated_data, url="/accounts/login", status="success")
 
                 return Response(res, res_status)
+
+
+# 카카오 로그인
+class KakaoLoginView(APIView):
+
+    permission_classes = [perms.AllowAny]
+
+    @swagger_auto_schema(manual_parameters=swagger_utils.login_no_require, tags=["카카오 로그인"])
+    def get(self, request):
+        REST_API_KEY = os.environ.get("KAKAO_REST_API_KEY")
+        local_callback_uri = "http://127.0.0.1:8000/api-v1/accounts/kakao-login/callback"
+
+        redirect_uri = f"kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={local_callback_uri}&response_type=code&prompt=login"
+        return redirect(f"https://{redirect_uri}")
+
+
+class KakaoCallBackView(APIView):
+    permission_classes = [perms.AllowAny]
+
+    @swagger_auto_schema(manual_parameters=swagger_utils.login_no_require, tags=["카카오 로그인 콜백"])
+    def get(self, request):
+        REST_API_KEY = os.environ.get("KAKAO_REST_API_KEY")
+        local_callback_uri = "http://127.0.0.1:8000/api-v1/accounts/kakao-login/callback"
+
+        code = request.GET.get("code")
+
+        token_request = requests.get(
+            f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={REST_API_KEY}&redirect_uri={local_callback_uri}&code={code}"
+        )
+
+        token_response_json = token_request.json()
+        access_token = token_response_json.get("access_token")
+
+        # 카카오 프로필 정보 가져오기
+        profile_request = requests.get(
+            f"https://kapi.kakao.com/v2/user/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        
+        profile_json = profile_request.json()
+
+        email = profile_json.get("kakao_account").get("email", None)
+
+        properties = profile_json.get("properties")
+        username = properties.get("nickname")
+
+        gender = profile_json.get("kakao_account").get("gender")
+        profile_image = profile_json.get("kakao_account")
+        profile_image = profile_image.get("profile").get("profile_image_url")
+        birthday = profile_json.get("kakao_account").get("birthday")
+
+        if gender == "male":
+            gender = "M"
+
+        else:
+            gender = "F"
+
+        try:
+            user = user_models.User.objects.prefetch_related("profile", "quit_users").get(email=email)
+            if user:
+                if not user.is_quit and user.login_method == user_models.User.LOGIN_KAKAO:
+                    payload = {"user_id": user.id}
+
+                    jwt_token = generate.generate_jwt_token(payload, "access")
+
+                    response = {
+                        "message": "카카오 계정으로 로그인 되었습니다.",
+                        "jwt_token": jwt_token,
+                        "kakao_access_token": access_token,
+                        "user": user.username,
+                    }
+                    update_last_login(None, user)
+                    return Response(response, status=status.HTTP_200_OK)
+
+                elif not user.is_quit and user.login_method != user_models.User.LOGIN_KAKAO:
+                    response = {
+                        "message": f"{user.login_method} 계정으로 이미 존재하는 계정입니다.",
+                    }
+                    return Response(response, status=status.HTTP_200_OK)
+
+        except user_models.User.DoesNotExist:
+            user = user_models.User.objects.create(email=email, username=username)
+            user.login_method = "kakao"
+            user.email_verified = True
+            user.gender = gender
+            user.birthdate = birthday
+            user.set_unusable_password()
+            user.save()
+
+            if profile_image is not None:
+
+                avatar = requests.get(profile_image)
+                user_profile = user_models.UserProfile.objects.create(user=user)
+                user_profile.avatar.save(
+                    f"{username}-avatar.png", ContentFile(avatar.content)
+                )
+    
+            payload = {"user_id": user.id}
+
+            jwt_token = generate.generate_jwt_token(payload, "access")
+
+            response = {
+                "message": "카카오 계정으로 회원가입이 되었습니다.",
+                "jwt_token": jwt_token,
+                "kakao_access_token": access_token,
+                "user_id": user.id,
+            }
+
+            update_last_login(None, user)
+
+            return Response(response, status=status.HTTP_200_OK)
