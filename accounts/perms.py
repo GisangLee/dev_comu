@@ -31,6 +31,6 @@ class AdminOnly(BasePermission):
         else:
             if request.user.is_admin:
                 return True
-                
+
             else:
                 return False
