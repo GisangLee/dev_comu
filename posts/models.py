@@ -19,10 +19,10 @@ class Post(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     desc = models.TextField(blank=True, null=True)
 
-    tags = models.ManyToManyField("Tag", related_name="posts", through="PostTag")
-    liked_users = models.ManyToManyField(user_models.User, related_name="post_liked_users", through="PostLikedUsers")
-    viewed_users = models.ManyToManyField(user_models.User, related_name="post_viewed_users", through="PostViewedUsers") 
-    scrapped_users = models.ManyToManyField(user_models.User, related_name="post_scrapped_users", through="PostScrappedUsers") 
+    tags = models.ManyToManyField("Tag", related_name="posts", through="PostTag", blank=True, null=True)
+    liked_users = models.ManyToManyField(user_models.User, related_name="post_liked_users", through="PostLikedUsers", blank=True, null=True)
+    viewed_users = models.ManyToManyField(user_models.User, related_name="post_viewed_users", through="PostViewedUsers", blank=True, null=True) 
+    scrapped_users = models.ManyToManyField(user_models.User, related_name="post_scrapped_users", through="PostScrappedUsers", blank=True, null=True) 
 
     is_deleted = models.BooleanField(default=False)
 

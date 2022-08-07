@@ -6,10 +6,31 @@ class LoggedInRequired(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return bool(request.user and not request.user.is_deleted)
+        if not request.user.is_anonymous:
+            if request.user.is_deleted:
+                return False
+            else:
+
+                return True
+        else:
+            return False
 
 
 class AllowAny(BasePermission):
 
     def has_permission(self, request, view):
         return True
+
+
+class AdminOnly(BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return False
+
+        else:
+            if request.user.is_admin:
+                return True
+                
+            else:
+                return False

@@ -49,11 +49,15 @@ class JwtTokenAuthentication():
             return None
         
         try:
-            user = user_model.objects.get(pk=user_id)
+            #user = user_model.objects.get(pk=user_id)
+            user = user_models.User.objects.get(pk=user_id)
+
+            if user:
+                return (user, token)
         except user_model.DoesNotExist:
             raise exceptions.AuthenticationFailed("사용자가 존재하지 않습니다.")
         
-        return (user, token)
+        
 
     
     def authenticate_header(self, request):
