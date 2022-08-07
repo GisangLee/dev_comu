@@ -198,6 +198,7 @@ class KakaoCallBackView(APIView):
 class GoogleLoginView(APIView):
     permission_classes = [perms.AllowAny]
 
+    @swagger_auto_schema(manual_parameters=swagger_utils.login_no_require, tags=["구글 로그인"])
     def get(self, request):
         GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_REST_API_KEY")
 
@@ -212,6 +213,7 @@ class GoogleLoginView(APIView):
 class GoogleCallbackView(APIView):
     permission_classes = [perms.AllowAny]
 
+    @swagger_auto_schema(manual_parameters=swagger_utils.login_no_require, tags=["구글 로그인 콜백"])
     def get(self, request):
         code = request.GET.get("code")
         google_token_api = "https://oauth2.googleapis.com/token"
