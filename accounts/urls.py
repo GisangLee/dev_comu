@@ -8,5 +8,6 @@ urlpatterns = [
     path("login", user_views.LoginView.as_view()),
     path("kakao-login", user_views.KakaoLoginView.as_view()),
     path("kakao-login/callback", user_views.KakaoCallBackView.as_view()),
-    #path("google-login", user_views.GoogleLoginView.as_view()),
+    path("google-login", user_views.GoogleLoginView.as_view()),
+    path("google-login/callback", user_views.GoogleCallbackView.as_view()),
 ]

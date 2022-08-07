@@ -137,9 +137,9 @@ class KakaoCallBackView(APIView):
             gender = "F"
 
         try:
-            user = user_models.User.objects.prefetch_related("profile", "quit_users").get(email=email)
+            user = user_models.User.objects.prefetch_related("profile_images").get(email=email)
             if user:
-                if not user.is_quit and user.login_method == user_models.User.LOGIN_KAKAO:
+                if not user.is_deleted and user.login_method == user_models.User.LOGIN_KAKAO:
                     payload = {"user_id": user.id}
 
                     jwt_token = generate.generate_jwt_token(payload, "access")
@@ -153,7 +153,7 @@ class KakaoCallBackView(APIView):
                     update_last_login(None, user)
                     return Response(response, status=status.HTTP_200_OK)
 
-                elif not user.is_quit and user.login_method != user_models.User.LOGIN_KAKAO:
+                elif not user.is_deleted and user.login_method != user_models.User.LOGIN_KAKAO:
                     response = {
                         "message": f"{user.login_method} 계정으로 이미 존재하는 계정입니다.",
                     }
@@ -184,6 +184,122 @@ class KakaoCallBackView(APIView):
                 "message": "카카오 계정으로 회원가입이 되었습니다.",
                 "jwt_token": jwt_token,
                 "kakao_access_token": access_token,
+                "user_id": user.id,
+            }
+
+            update_last_login(None, user)
+
+            return Response(response, status=status.HTTP_200_OK)
+
+
+
+
+# 구글 로그인
+class GoogleLoginView(APIView):
+    permission_classes = [perms.AllowAny]
+
+    def get(self, request):
+        GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_REST_API_KEY")
+
+        local_callback_uri = "http://127.0.0.1:8000/api-v1/accounts/google-login/callback"
+
+        google_auth_api = "https://accounts.google.com/o/oauth2/v2/auth"
+        scope = "https://www.googleapis.com/auth/userinfo.email "+ "https://www.googleapis.com/auth/userinfo.profile "+ "https://www.googleapis.com/auth/user.birthday.read "+ "https://www.googleapis.com/auth/user.gender.read "
+        redirect_uri = f"{google_auth_api}?client_id={GOOGLE_CLIENT_ID}&response_type=code&redirect_uri={local_callback_uri}&scope={scope}"
+        return redirect(redirect_uri)
+
+
+class GoogleCallbackView(APIView):
+    permission_classes = [perms.AllowAny]
+
+    def get(self, request):
+        code = request.GET.get("code")
+        google_token_api = "https://oauth2.googleapis.com/token"
+        GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_REST_API_KEY")
+        GOOGLE_SECRET = os.environ.get("GOOGLE_SECRET_PASSWORD")
+
+        local_callback_uri = "http://127.0.0.1:8000/api-v1/accounts/google-login/callback"
+
+        state = "random_string"
+
+        grant_type = "authorization_code"
+        google_token_api += f"?client_id={GOOGLE_CLIENT_ID}&client_secret={GOOGLE_SECRET}&code={code}&grant_type={grant_type}&&redirect_uri={local_callback_uri}&state={state}"
+        token_response = requests.post(google_token_api)
+
+        if not token_response.ok:
+            raise ValueError("google_token is invalid")
+
+        access_token = token_response.json().get("access_token")
+        print(f"access_token: {access_token}")
+
+        # 구글 프로필 정보 가져오기
+        user_info = requests.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            params={"access_token": access_token},
+        )
+
+        if not user_info.ok:
+            raise ValueError("사용자 정보를 불러오는데 실패했습니다.")
+
+        user_info_json = user_info.json()
+
+        profile = {
+            "username": user_info_json.get("name"),
+            "email": user_info_json["email"],
+            "avatar": user_info_json.get("picture"),
+            "email_verified": user_info_json.get("email_verified"),
+        }
+
+        try:
+            user = user_models.User.objects.prefetch_related("profile_images").get(email=profile["email"])
+            
+            if not user.is_deleted and user.login_method == user_models.User.LOGIN_GOOGLE:
+                payload = {"user_id": user.id}
+
+                jwt_token = generate.generate_jwt_token(payload, "access")
+
+                response = {
+                    "message": "구글 계정으로 로그인 되었습니다.",
+                    "jwt_token": jwt_token,
+                    "user_id": user.id,
+                }
+
+                update_last_login(None, user)
+
+                return Response(response, status=status.HTTP_200_OK)
+
+            elif not user.is_deleted and user.login_method != user_models.User.LOGIN_GOOGLE:
+                response = {
+                    "message": f"{user.login_method} 계정으로 이미 존재하는 계정입니다.",
+                }
+                return Response(response, status=status.HTTP_200_OK)
+
+        except user_models.User.DoesNotExist:
+        
+            user = user_models.User.objects.create(
+                email=profile["email"], username=profile["username"]
+            )
+
+            if profile["avatar"] is not None:
+                avatar = requests.get(profile["avatar"])
+                user_profile = user_models.UserProfile.objects.create(user=user)
+                user_profile.avatar.save(
+                    f"{profile['username']}-avatar.png", ContentFile(avatar.content)
+                )
+
+            payload = {"user_id": user.id}
+
+            user.login_method = "google"
+            user.email_verified = profile["email_verified"]
+            #user.pwd_change_date = datetime.datetime.now()
+            user.set_unusable_password()
+            user.save()
+
+            jwt_token = generate.generate_jwt_token(payload, "access")
+
+            response = {
+                "message": "구글 계정으로 회원가입이 되었습니다.",
+                "jwt_token": jwt_token,
                 "user_id": user.id,
             }
 
