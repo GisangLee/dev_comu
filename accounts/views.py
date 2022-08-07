@@ -1,3 +1,4 @@
+from curses import reset_prog_mode
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -44,13 +45,13 @@ class LoginView(APIView):
 
             res = utils.api_response(action="로그인", method="POST", error="로그인 실패", message="", url="/accounts/login", status="fail")
             
-            response = {
-                "action": "로그인",
-                "method": "POST",
-                "message": "로그인 실패",
-                "token": None,
-                "user": None,
-            }
+            # res = {
+            #     "action": "로그인",
+            #     "method": "POST",
+            #     "message": "로그인 실패",
+            #     "token": None,
+            #     "user": None,
+            # }
             
             res_status = status.HTTP_400_BAD_REQUEST
 
@@ -66,11 +67,11 @@ class LoginView(APIView):
 
                 res = utils.api_response(action="로그인", method="POST", error=serializer.validated_data, message="", url="/accounts/login", status="fail")
 
-                return Response(response, res_status)
+                return Response(res, res_status)
 
             else:
                 res_status = status.HTTP_200_OK
 
                 res = utils.api_response(action="로그인", method="POST", error="", message=serializer.validated_data, url="/accounts/login", status="success")
 
-                return Response(response, res_status)
+                return Response(res, res_status)

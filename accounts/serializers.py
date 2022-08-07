@@ -35,8 +35,7 @@ class LoginSerializer(Serializer):
             "message": "OK",
             "token": access_jwt,
             "status": 200,
-            "username": user.username,
-            "email": user.email,
+            "user_id": user.id
         }
         return response
 

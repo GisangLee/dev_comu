@@ -21,20 +21,23 @@ class EmailUsernameLoginBackend(ModelBackend):
                 "username": username
             }
         try:
-            user = get_user_model().objects.get(**kwargs)
+            #user = get_user_model().objects.get(**kwargs)
+            user = user_models.User.objects.get(**kwargs)
 
-            print(f"===========================user : {user}======================================")
+            if user:
 
-            if user.check_password(password):
-                #user.wrong_pwd = False
-                #user.save()
-                return user
+                print(f"===========================user : {user}======================================")
 
-            else:
-                # 비밀번호 오류
-                #user.wrong_pwd = True
-                #user.save()
-                return None
+                if user.check_password(password):
+                    #user.wrong_pwd = False
+                    #user.save()
+                    return user
+
+                else:
+                    # 비밀번호 오류
+                    #user.wrong_pwd = True
+                    #user.save()
+                    return None
 
         except user_models.User.DoesNotExist:
             return None

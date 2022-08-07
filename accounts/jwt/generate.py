@@ -23,6 +23,6 @@ def generate_jwt_token(payload, type):
 
     payload["exp"] = exp
     payload["iat"] = datetime.datetime.now()
-    jwt_encoded = jwt.encode(payload, os.environ.get("DJANGO_SECRET_KEY"), algorithm=os.environ.get("JWT_ALGORITHM"))
+    jwt_encoded = jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("JWT_ALGORITHM"))
 
     return jwt_encoded
