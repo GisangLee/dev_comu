@@ -20,6 +20,8 @@ class SignupView(APIView):
     @swagger_auto_schema(request_body=swagger_ser.SignupSerializer, manual_parameters=swagger_utils.login_no_require, tags=["회원가입"])
     def post(self, request):
 
+        print(f" req Data : {request.data}")
+
         # 회원가입 진행
         serializer = account_serializers.SignupSerializer(data=request.data)
         

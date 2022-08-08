@@ -10,7 +10,7 @@ THIRD_PARTY_APPS += [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJ_APPS
 
-MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", "debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 print(f"THIRD_PARTY_APPS : {THIRD_PARTY_APPS}")
 print(f"MIDDLEWARE : {MIDDLEWARE}")
@@ -40,3 +40,5 @@ STATICFILES_DIRS = [
 import socket  # only if you haven't already imported this
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+
+print(f"INTERNAL_IPS : {INTERNAL_IPS}")

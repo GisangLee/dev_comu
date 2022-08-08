@@ -13,6 +13,7 @@ IT Tech Community
 
 ## 게시글
 
+- 게시글 간편 Read [x]
 - 게시글 상세 [x]
 - 게시글 작성 [x]
 - 게시글 수정 [x]

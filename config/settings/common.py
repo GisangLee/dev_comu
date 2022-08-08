@@ -24,7 +24,8 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "rest_framework",
-    "drf_yasg"
+    "drf_yasg",
+    'corsheaders',
 ]
 
 PROJ_APPS = [
@@ -127,4 +128,15 @@ AUTH_USE_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = (
     'accounts.auth.login_email_auth.EmailUsernameLoginBackend',
     #'django.contrib.auth.backends.ModelBackend',
+)
+
+# CORS 허용 여부 True 를 하게되면 누구든 접근이 허용된다.
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = False
+
+# 접근 가능한 url 을 따로 관리
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8000',
 )
