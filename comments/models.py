@@ -11,6 +11,8 @@ class Comment(models.Model):
     liked_users = models.ManyToManyField(user_models.User, related_name="comment_liked_users", through="CommentLikedUsers", blank=True, null=True)
     disliked_users = models.ManyToManyField(user_models.User, related_name="comment_disliked_users", through="CommentDisLikedUsers", blank=True, null=True)
 
+    is_deleted = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now = True)
 
@@ -23,6 +25,7 @@ class ChildComment(models.Model):
     comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="child_comments")
 
     desc = models.TextField(blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
 
     liked_users = models.ManyToManyField(user_models.User, related_name="child_comment_liked_users", through="ChildCommentLikedUsers", blank=True, null=True)
     disliked_users = models.ManyToManyField(user_models.User, related_name="child_comment_disliked_users", through="ChildCommentDisLikedUsers", blank=True, null=True)

@@ -133,7 +133,7 @@ class Comment(APIView):
                 .prefetch_related("author__profile_images", "child_comments", "child_comments__author",
                 "child_comments__author__profile_images", "liked_users", "disliked_users",
                 "child_comments__liked_users", "child_comments__disliked_users")\
-                .get(pk = comment_pk)
+                .get(pk = comment_pk, is_deleted = False)
 
             if comment:
                 
@@ -156,7 +156,7 @@ class Comment(APIView):
                 action = "댓글 상세",
                 method = "GET",
                 url = "/comments/comment/<int:comment_pk>",
-                error ="존재하지 않는 댓글입니다.",
+                error ="존재하지 않거나 삭제된 댓글입니다.",
                 message = "",
                 status = "fail"
             )
@@ -183,7 +183,7 @@ class Comment(APIView):
             return Response(res, status = status.HTTP_400_BAD_REQUEST)
 
         try:
-            comment = comment_models.Comment.objects.select_related("author").get(pk = comment_pk)
+            comment = comment_models.Comment.objects.select_related("author").get(pk = comment_pk, is_deleted = False)
 
             if comment:
                 author = comment.author
@@ -219,13 +219,47 @@ class Comment(APIView):
                 action = "댓글 수정",
                 method = "PATCH",
                 url = "/comments/comment/<int:comment_pk>",
-                error ="존재하지 않는 댓글입니다.",
+                error ="존재하지 않거나 삭제된 댓글입니다.",
                 message = "",
                 status = "fail"
             )
 
             return Response(res, status = status.HTTP_400_BAD_REQUEST)
 
+    # 댓글 삭제
+    @swagger_auto_schema(manual_parameters=swagger_utils.modify_comment, tags=["댓글 삭제"])
+    def delete(self, request, comment_pk):
+
+        try:
+            comment = comment_models.Comment.objects.get(pk = comment_pk, is_deleted = False)
+            
+            if comment:
+                comment.is_deleted = True
+                comment.save()
+
+                res = utils.api_response(
+                    action = "댓글 삭제",
+                    method = "DELETE",
+                    url = "/comments/comment/<int:comment_pk>",
+                    error ="",
+                    message = "댓글이 삭제되었습니다.",
+                    status = "success"
+                )
+
+                return Response(res, status = status.HTTP_200_OK)
+
+
+        except comment_models.Comment.DoesNotExist:
+            res = utils.api_response(
+                action = "댓글 삭제",
+                method = "DELETE",
+                url = "/comments/comment/<int:comment_pk>",
+                error ="존재하지 않거나 삭제된 댓글입니다.",
+                message = "",
+                status = "fail"
+            )
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
 
 
         
