@@ -8,7 +8,7 @@ from drf_yasg.views import get_schema_view
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="project name",
+        title="IT 커뮤니티 웹 서비스 DEMU API 명세",
         default_version='프로젝트 버전 ( 1.0 )',
         description="API 문서",
         #terms_of_service="https://www.google.com/policies/terms/",
