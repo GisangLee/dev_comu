@@ -12,6 +12,12 @@ def make_api_param(name, type, desc, format, default=""):
 
     return param
 
+get_all_comments = [
+    make_api_param("page", openapi.IN_QUERY, "페이지", openapi.TYPE_STRING, default="1"),
+    make_api_param("system-key", openapi.IN_HEADER, "시스템 키", openapi.TYPE_STRING, default=os.environ.get("SYSTEM_KEY")),
+    make_api_param("Authorization", openapi.IN_HEADER, "jwt", openapi.TYPE_STRING),
+]
+
 login_no_require = [
     make_api_param("system-key", openapi.IN_HEADER, "시스템 키", openapi.TYPE_STRING, default=os.environ.get("SYSTEM_KEY")),
 ]

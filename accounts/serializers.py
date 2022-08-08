@@ -14,9 +14,9 @@ class ProfileImageSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
-    profile_image = SerializerMethodField()
+    profile_images = SerializerMethodField()
 
-    def get_profile_image(self, obj):
+    def get_profile_images(self, obj):
 
         image = obj.profile_images.all().last()
 
@@ -25,6 +25,13 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = account_models.User
         fields = ("pk", "username", "email", "profile_images",)
+
+class UserSerializerForLikedOrDisliked(ModelSerializer):
+
+    class Meta:
+        model = account_models.User
+        fields = ("pk")
+
 
 
 class LoginSerializer(Serializer):
