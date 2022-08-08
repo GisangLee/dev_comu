@@ -18,6 +18,12 @@ get_all_comments = [
     make_api_param("Authorization", openapi.IN_HEADER, "jwt", openapi.TYPE_STRING),
 ]
 
+modify_comment = [
+    make_api_param("comment_pk", openapi.IN_PATH, "댓글 PK", openapi.TYPE_STRING),
+    make_api_param("system-key", openapi.IN_HEADER, "시스템 키", openapi.TYPE_STRING, default=os.environ.get("SYSTEM_KEY")),
+    make_api_param("Authorization", openapi.IN_HEADER, "jwt", openapi.TYPE_STRING),
+]
+
 login_no_require = [
     make_api_param("system-key", openapi.IN_HEADER, "시스템 키", openapi.TYPE_STRING, default=os.environ.get("SYSTEM_KEY")),
 ]

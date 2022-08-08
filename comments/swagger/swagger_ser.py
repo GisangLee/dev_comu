@@ -10,7 +10,6 @@ class CreateChildComment(Serializer):
 
 
 class ModifyCommentSerializer(Serializer):
-    post_id = CharField()
     desc = CharField()
 
 class ModifyChildCommentSerializer(Serializer):

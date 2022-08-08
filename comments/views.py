@@ -162,3 +162,71 @@ class Comment(APIView):
             )
 
             return Response(res, status = status.HTTP_400_BAD_REQUEST)
+
+
+    @swagger_auto_schema(request_body=comment_swagger_ser.ModifyCommentSerializer, manual_parameters=swagger_utils.modify_comment, tags=["댓글 수정"])
+    def patch(self, request, comment_pk):
+
+        logged_in_user = request.user
+        desc = request.data.get("desc", None)
+
+        if desc is None:
+            res = utils.api_response(
+                action = "댓글 수정",
+                method = "PATCH",
+                url = "/comments/comment/<int:comment_pk>",
+                error ="수정할 댓글 내용을 요청에 담아주세요",
+                message = "",
+                status = "fail"
+            )
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
+
+        try:
+            comment = comment_models.Comment.objects.select_related("author").get(pk = comment_pk)
+
+            if comment:
+                author = comment.author
+
+                if logged_in_user != author:
+                    res = utils.api_response(
+                        action = "댓글 수정",
+                        method = "PATCH",
+                        url = "/comments/comment/<int:comment_pk>",
+                        error ="권한이 없습니다.",
+                        message = "",
+                        status = "fail"
+                    )
+
+                    return Response(res, status = status.HTTP_401_UNAUTHORIZED)
+
+                comment.desc = desc
+                comment.save()
+
+                res = utils.api_response(
+                    action = "댓글 수정",
+                    method = "PATCH",
+                    url = "/comments/comment/<int:comment_pk>",
+                    error ="",
+                    message = "댓글 내용이 수정되었습니다.",
+                    status = "success"
+                )
+
+                return Response(res, status = status.HTTP_401_UNAUTHORIZED)
+
+        except comment_models.Comment.DoesNotExist:
+            res = utils.api_response(
+                action = "댓글 수정",
+                method = "PATCH",
+                url = "/comments/comment/<int:comment_pk>",
+                error ="존재하지 않는 댓글입니다.",
+                message = "",
+                status = "fail"
+            )
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
+
+
+
+        
+
