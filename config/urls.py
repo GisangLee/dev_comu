@@ -27,7 +27,7 @@ urlpatterns = [
     path(r'api-v1/redoc', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc-v1'),
     path('api-v1/accounts/', include("accounts.urls", namespace="accounts")),
     path('api-v1/posts/', include("posts.urls", namespace="posts")),
-    #path('api-v1/comments/', include("comments.urls", namespace="comments")),
+    path('api-v1/comments/', include("comments.urls", namespace="comments")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

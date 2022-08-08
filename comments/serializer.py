@@ -3,10 +3,11 @@ from accounts.serializers import UserSerializer
 from comments import models as comment_models
 
 class CommentSerializer(ModelSerializer):
+    author = UserSerializer()
 
     class Meta:
         model = comment_models.ChildComment
-        fields = ("pk", "desc", "created_at", "update_at",)
+        fields = ("pk", "author", "desc", "created_at", "update_at",)
 
 class CommentSerializer(ModelSerializer):
     author = UserSerializer()

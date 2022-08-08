@@ -101,4 +101,6 @@ class SignupSerializer(ModelSerializer):
             "email",
             "birthdate",
             "password",
+            "gender",
+            "login_method"
         )

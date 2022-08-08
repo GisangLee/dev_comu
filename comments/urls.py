@@ -4,5 +4,5 @@ from comments import views as comment_views
 app_name = "comments"
 
 urlpatterns = [
-    #path("comment", post_views.Post.as_view()),
+    path("", comment_views.Comment.as_view()),
 ]
