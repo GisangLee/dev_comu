@@ -4,6 +4,13 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from accounts import models as account_models
 from accounts.jwt import generate
+from posts import models as post_models
+
+class UserSerializerForMToN(ModelSerializer):
+
+    class Meta:
+        model = account_models.User
+        fields = ("pk",)
 
 
 class ProfileImageSerializer(ModelSerializer):
@@ -25,12 +32,6 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = account_models.User
         fields = ("pk", "username", "email", "profile_images",)
-
-class UserSerializerForLikedOrDisliked(ModelSerializer):
-
-    class Meta:
-        model = account_models.User
-        fields = ("pk")
 
 
 

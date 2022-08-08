@@ -33,7 +33,7 @@ class Category(APIView):
 # 게시글 상세
 # 게시글 삭제
 # 게시글 수정
-class PostSpecific(APIView):
+class Post(APIView):
     #permission_classes = [perms.AllowAny]
 
     # 게시글 상세
@@ -144,9 +144,50 @@ class PostSpecific(APIView):
 
 
 
-
+# 게시글 모두 불러오기 ( Pagination )
 # 게시글 작성
-class Post(APIView):
+class Posts(APIView):
+    permission_classes = [perms.AllowAny]
+
+    @swagger_auto_schema(manual_parameters=swagger_utils.get_all_posts, tags=["게시글 모두 불러오기"])
+    def get(self, request):
+
+        page = int(request.GET.get("page", 1))
+
+        page_size = 25
+        
+        limit = page_size * page
+        offset = limit - page_size
+        
+        all_posts = list(
+            post_models.Post.objects\
+            .select_related("author", "category")\
+            .prefetch_related(
+                "tags",
+                "liked_users",
+                "viewed_users",
+                "scrapped_users",
+                "author__profile_images",
+                "comments",
+                "comments__child_comments"
+            )\
+            .all()
+        )
+
+        all_posts = all_posts[offset : limit]
+
+        all_post_json = serializer.SimplePostSerializer(all_posts, many = True)
+
+        res = utils.api_response(
+            action = "포스트 모두 불러오기",
+            method = "GET",
+            url = "/posts",
+            error = "",
+            message = all_post_json.data,
+            status = "success"
+        )
+
+        return Response(res, status = status.HTTP_200_OK)
 
     @swagger_auto_schema(request_body=post_swagger_ser.CreatePostSerializer, manual_parameters=swagger_utils.login_required, tags=["게시글 작성"])
     def post(self, request):
