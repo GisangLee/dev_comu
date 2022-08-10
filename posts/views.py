@@ -153,15 +153,31 @@ class Posts(APIView):
     def get(self, request):
 
         page = int(request.GET.get("page", 1))
+        category = request.GET.get("category", None)
+
+        if category is None:
+            res = utils.api_response(
+                action = "포스트 모두 불러오기",
+                method = "GET",
+                url = "/posts",
+                error = "카테고리를 지정해주세요.",
+                message = "",
+                status = "fail"
+            )
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
 
         page_size = 25
         
         limit = page_size * page
         offset = limit - page_size
+
+        if category == "QA":
+            category = "Q&A"
         
         all_posts = list(
             post_models.Post.objects\
-            .select_related("author", "category")\
+            .select_related("author")\
             .prefetch_related(
                 "tags",
                 "liked_users",
@@ -171,7 +187,7 @@ class Posts(APIView):
                 "comments",
                 "comments__child_comments"
             )\
-            .all()
+            .filter(is_deleted=False, category__name=category)
         )
 
         all_posts = all_posts[offset : limit]
