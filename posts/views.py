@@ -173,7 +173,7 @@ class Posts(APIView):
         limit = page_size * page
         offset = limit - page_size
 
-        if category == "QA":
+        if category == "qa":
             category = "Q&A"
         
         all_posts = list(
@@ -268,20 +268,37 @@ class SearchPosts(APIView):
     def get(self, request, keyword):
 
         page = int(request.GET.get("page", 1))
+        category = request.GET.get("category", None)
 
         page_size = 10
 
         limit = page_size * page
         offset = limit - page_size
 
+        if category is None:
+            res = utils.api_response(
+                action="게시글 검색",
+                url="/posts/post/keywords",
+                method="GET",
+                error="카테고리 정보가 필요합니다.",
+                message="",
+                status="fail"
+            )
+
+            return Response(res, status = status.HTTP_400_BAD_REQUEST)
+
+        if category == "qa":
+            category = "Q&A"
+
         if keyword is None:
             keyword = ""
-            
+
         posts_by_keywords = post_models.Post.objects\
             .select_related("author", "category")\
             .filter(
                 (Q(title__icontains = keyword) | Q(desc__icontains = keyword) | Q(tags__name__icontains = keyword))\
                 & Q(is_deleted = False)\
+                & Q(category__name = category)\
             )\
             .prefetch_related(
                 "tags",
