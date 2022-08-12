@@ -21,13 +21,16 @@ class ProfileImageSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    profile_images = ProfileImageSerializer(read_only=True)
+    """
     profile_images = SerializerMethodField()
 
     def get_profile_images(self, obj):
 
-        image = obj.profile_images.all().last()
+        image = obj.profile_images.last()
 
         return ProfileImageSerializer(image).data
+    """
 
     class Meta:
         model = account_models.User

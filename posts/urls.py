@@ -6,5 +6,6 @@ app_name = "posts"
 urlpatterns = [
     path("", post_views.Posts.as_view()),
     path("post/<int:post_pk>", post_views.Post.as_view()),
+    path("post/<str:keyword>", post_views.SearchPosts.as_view()),
     path("category", post_views.Category.as_view()),
 ]

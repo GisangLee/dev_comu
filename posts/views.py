@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -178,6 +179,7 @@ class Posts(APIView):
         all_posts = list(
             post_models.Post.objects\
             .select_related("author")\
+            .filter(is_deleted=False, category__name=category)\
             .prefetch_related(
                 "tags",
                 "liked_users",
@@ -186,8 +188,8 @@ class Posts(APIView):
                 "author__profile_images",
                 "comments",
                 "comments__child_comments"
-            )\
-            .filter(is_deleted=False, category__name=category)
+            )
+            
         )
 
         all_posts = all_posts[offset : limit]
@@ -256,3 +258,55 @@ class Posts(APIView):
 
 
 
+
+# 키워드로 포스팅 검색
+class SearchPosts(APIView):
+
+    permission_classes = [perms.AllowAny]
+
+    @swagger_auto_schema(manual_parameters=swagger_utils.get_posts_by_keywords, tags=["게시글 키워드로 검색"])
+    def get(self, request, keyword):
+
+        page = int(request.GET.get("page", 1))
+
+        page_size = 10
+
+        limit = page_size * page
+        offset = limit - page_size
+
+        posts_by_keywords = post_models.Post.objects\
+            .select_related("author", "category")\
+            .filter(
+                (Q(title__icontains = keyword) | Q(desc__icontains = keyword) | Q(tags__name__icontains = keyword))\
+                & Q(is_deleted = False)\
+            )\
+            .prefetch_related(
+                "tags",
+                "liked_users",
+                "viewed_users",
+                "scrapped_users",
+                "author__profile_images",
+                "comments",
+                "comments__liked_users",
+                "comments__disliked_users",
+                "comments__child_comments",
+                "comments__child_comments__liked_users",
+                "comments__child_comments__disliked_users"
+            )\
+            .distinct()
+
+        posts_by_keywords = list(posts_by_keywords)
+
+        posts_json = serializer.PostSerializer(posts_by_keywords[offset:limit], many = True)
+
+        res = utils.api_response(
+            action="게시글 검색",
+            url="/posts/post/keywords",
+            method="GET",
+            error="",
+            message=posts_json.data,
+            status="sucess"
+        )
+
+        return Response(res, status = status.HTTP_200_OK)
+        
