@@ -274,6 +274,9 @@ class SearchPosts(APIView):
         limit = page_size * page
         offset = limit - page_size
 
+        if keyword is None:
+            keyword = ""
+            
         posts_by_keywords = post_models.Post.objects\
             .select_related("author", "category")\
             .filter(
